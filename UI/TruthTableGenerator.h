@@ -14,6 +14,6 @@ public:
   TruthTableGenerator(QWidget *parent = nullptr);
 
 private slots:
-  // void clear();
+  void clearButtonClicked(bool clicked);
   void inputChanged();
 };

@@ -31,12 +31,19 @@ TruthTableGenerator::TruthTableGenerator(QWidget *parent) : QWidget(parent) {
   connect(m_input, &QLineEdit::textChanged, this,
           &TruthTableGenerator::inputChanged);
 
+  connect(button, &QPushButton::clicked, this,
+          &TruthTableGenerator::clearButtonClicked);
+
   vlayout->addLayout(input_bar);
   vlayout->addWidget(m_table);
 }
 
 void TruthTableGenerator::inputChanged() {
   auto text = m_input->text();
+
+  if(text.isEmpty()){
+    return;
+  }
 
   Boolean::Formula<bool> formula(text.toStdString());
 
@@ -86,3 +93,5 @@ void TruthTableGenerator::inputChanged() {
 
   m_table->resizeColumnsToContents();
 }
+
+void TruthTableGenerator::clearButtonClicked(bool clicked) { m_input->clear(); }

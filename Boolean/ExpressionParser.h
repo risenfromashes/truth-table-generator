@@ -2,10 +2,10 @@
 
 #include <map>
 
-#include "Expression.h"
-#include "Variable.h"
-#include "Operator.h"
 #include "Constant.h"
+#include "Expression.h"
+#include "Operator.h"
+#include "Variable.h"
 
 namespace Boolean {
 
@@ -51,7 +51,8 @@ template <std::integral T> class ExpressionParser {
     auto cnst = std::make_shared<Constant<T>>(val);
 
     consumeOperand(cnst);
-    m_str.remove_prefix(offset);
+    // one char will be consumed later
+    m_str.remove_prefix(offset - 1);
   }
 
   void consumeVariable() {
@@ -192,10 +193,16 @@ template <std::integral T> class ExpressionParser {
       // create new parser to parse the content of parenthesis
       m_str.remove_prefix(1);
       ExpressionParser<T> new_parser(m_str, m_var_table);
+
       auto ex = new_parser.parse();
-      ex->makeParenthesised();
-      consumeOperand(ex);
-      m_is_implicit_and = true;
+      if (ex) {
+        ex->makeParenthesised();
+        consumeOperand(ex);
+        m_is_implicit_and = true;
+      }
+      if (m_str.empty()) {
+        return;
+      }
     }
     m_str.remove_prefix(1);
   }
