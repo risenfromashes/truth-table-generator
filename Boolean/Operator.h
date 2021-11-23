@@ -6,7 +6,7 @@ namespace Boolean {
 
 enum class Operator { NOT = 1, AND = 2, XOR = 3, OR = 4 };
 
-template <std::integral T> class Operation : public Expression<int> {
+template <std::integral T> class Operation : public Expression<T> {
   friend class ExpressionParser<T>;
 
   Operator m_operator;
@@ -34,25 +34,42 @@ public:
     T ret;
     switch (m_operator) {
     case Operator::NOT:
-      assert(this->m_operands.size() == 1);
-      ret = ~(this->m_operands.front()->eval());
+      // assert(this->m_operands.size() == 1);
+      if constexpr (std::same_as<T, bool>) {
+        ret = !(this->m_operands.front()->eval());
+      } else {
+        ret = ~(this->m_operands.front()->eval());
+      }
       return ret;
     case Operator::AND:
       ret = 1;
       for (const auto &expr : this->m_operands) {
-        ret &= expr->eval();
+        if constexpr (std::same_as<T, bool>) {
+          ret = ret && expr->eval();
+        } else {
+          ret &= expr->eval();
+        }
       }
       return ret;
     case Operator::OR:
       ret = 0;
       for (const auto &expr : this->m_operands) {
-        ret |= expr->eval();
+        if constexpr (std::same_as<T, bool>) {
+          ret = ret || expr->eval();
+        } else {
+          ret |= expr->eval();
+        }
       }
       return ret;
     case Operator::XOR:
       ret = 0;
       for (const auto &expr : this->m_operands) {
-        ret ^= expr->eval();
+        if constexpr (std::same_as<T, bool>) {
+          T val = expr->eval();
+          ret = (ret && !val) || (!ret && val);
+        } else {
+          ret ^= expr->eval();
+        }
       }
       return ret;
     }
@@ -76,7 +93,7 @@ public:
     }
     std::cout << sym;
     std::cout << "(";
-    for (const auto &child : m_operands) {
+    for (const auto &child : this->m_operands) {
       child->print();
       std::cout << ',';
     }

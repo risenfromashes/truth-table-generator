@@ -37,7 +37,9 @@ TruthTableGenerator::TruthTableGenerator(QWidget *parent) : QWidget(parent) {
 
 void TruthTableGenerator::inputChanged() {
   auto text = m_input->text();
-  Boolean::Formula<int> formula(text.toStdString());
+
+  Boolean::Formula<bool> formula(text.toStdString());
+
   const auto &vars = formula.variables();
 
   if (vars.size() >= 31) {
@@ -67,12 +69,20 @@ void TruthTableGenerator::inputChanged() {
 
   formula.zeroVariables();
   for (int r = 0; r < rows; r++) {
-    for (int c = 0; c < cols - 1; c++) {
-      auto *item = new QTableWidgetItem(QString::number(vars[c].getValue()));
+    for (int c = 0; c < cols; c++) {
+      bool val;
+      if (c < cols - 1) {
+        val = vars[c].getValue();
+      } else {
+        val = formula.eval();
+      }
+      QTableWidgetItem *item = new QTableWidgetItem(QString::number(val));
+      item->setTextAlignment(Qt::AlignHCenter);
       m_table->setItem(r, c, item);
+      item->setSelected(val);
     }
-    auto *item = new QTableWidgetItem(QString::number(formula.eval()));
-    m_table->setItem(r, cols - 1, item);
     formula.increment();
   }
+
+  m_table->resizeColumnsToContents();
 }
