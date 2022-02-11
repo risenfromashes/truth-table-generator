@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "Variable.h"
 #include "ExpressionParser.h"
+#include "Variable.h"
 
 namespace Boolean {
 template <std::integral T> class Formula {
@@ -51,6 +51,10 @@ public:
                                "' not found");
     }
     return m_var_table.at(name);
+  }
+
+  bool hasVariable(std::string name) {
+    return m_var_table.contains(name);
   }
 
   T eval(std::initializer_list<std::pair<std::string, T>> vals = {}) {
